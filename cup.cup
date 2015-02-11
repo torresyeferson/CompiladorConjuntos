@@ -1,0 +1,43 @@
+/*­­­­Sección de declaraciones package e imports­­­­­­­­­*/
+import java_cup.runtime.*;
+import java.io.*;
+/*­­­­ Sección componentes de código de usuario ­­­­*/
+parser code {:
+    public void report_error(String mensaje, Object info) {
+       	StringBuffer m = new StringBuffer("error");
+		System.out.println("Mensaje: "+mensaje);
+		System.out.println("info: "+info.toString());
+		if(info instanceof java_cup.runtime.Symbol) {
+			java_cup.runtime.Symbol s=((java_cup.runtime.Symbol)info);
+			/* Comprueba si el numero de línea es mayor o igual que cero */
+			if(s.left >= 0) {
+				m.append(" en linea "+(s.left+1));
+				/*Comprueba si el numero de columna es mayoro igual que cero */
+				if (s.right >= 0)
+					m.append(", y columna "+(s.right+1));
+			}
+		}
+		m.append(" : "+mensaje);
+		System.err.println(m);
+    }
+    public void report_fatal_error(String message, Object info) {
+       	report_error(message, info);
+		System.exit(1);
+    }
+public void unir(Object a, Object b){
+ System.out.println(a+b);
+}
+
+:};
+/*­­­ Declaración de la lista de símbolos de la gramática ­­­­­*/
+
+terminal ELEMENTO,INICIO,FINC,FINLINEA,UNION;
+non terminal sentencia,conjunto,elementos;
+/* ­­­­­­­­­­­­­­ Declaración de la gramática  ­­­­­­­­­­­ */
+sentencia::=conjunto:c1 UNION conjunto:c2 FINLINEA {: parser.unir(c1,c2); :} | error conjunto:c1 UNION conjunto:c2 {:parser.report_error("Falta el fin de linea",null); :};
+conjunto::=INICIO elementos FINC | error INICIO elementos FINC FINLINEA
+ {: parser.report_error("revise la sintaxis",null); :}   ; 
+elementos::=elementos ELEMENTO| ELEMENTO| error ELEMENTO UNION {: parser.report_error("no se permite el simbolo de union como elemento del conjunto",null); :};
+
+
+

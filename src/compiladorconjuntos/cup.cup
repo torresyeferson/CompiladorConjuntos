@@ -1,0 +1,75 @@
+/*­­­­Sección de declaraciones package e imports­­­­­­­­­*/
+package compiladorconjuntos;
+import java_cup.runtime.*;
+import java.io.*;
+/*­­­­ Sección componentes de código de usuario ­­­­*/
+parser code {:
+   public void report_error(String mensaje, Object info) {
+       	StringBuffer m = new StringBuffer("error");
+		System.out.println("info: "+info.toString());
+                //System.out.println(Integer.parseInt(info.toString()));
+                char a=info.toString().charAt(1);
+                String msj="";
+                switch (a){
+                    case '1':
+                        msj="Caracter no valido";
+                        break;
+                    case '7': 
+                        msj= "Elemeno no valido en esa posicion";
+                        break;
+                    case '5': 
+                        msj= "; solo en fin de linea";
+                        break;
+                    case '6': 
+                        msj= "solo entre dos conjuntos";
+                        break;
+                    case '0': 
+                        msj= "falta fin de linea";
+                        break;
+                    case '3': 
+                        msj= "al inicio de un conjunto";
+                        break;
+                    case '4': 
+                        msj= "al final del conjunto";
+                        break;
+                    default:
+                        System.out.println(a);
+                        msj="verifique sintaxis";
+                        break;
+                }
+		if(info instanceof java_cup.runtime.Symbol) {
+			java_cup.runtime.Symbol s=((java_cup.runtime.Symbol)info);
+			/* Comprueba si el numero de línea es mayor o igual que cero */
+			if(s.left >= 0) {
+				m.append(" en linea "+(s.left+1));
+				/*Comprueba si el numero de columna es mayoro igual que cero */
+				if (s.right >= 0)
+					m.append(", y columna "+(s.right+1));
+			}
+		}
+		m.append(" : "+msj);
+		System.err.println(m);
+                
+    }
+    public void report_fatal_error(String message, Object info) {
+        try{
+       	report_error(message, info);
+        }
+        catch(Exception e){
+
+        }
+    }
+    :};
+/*­­­ Declaración de la lista de símbolos de la gramática ­­­­­*/
+
+terminal NUMERO,INICIO,FINC,FINLINEA,UNION,ELEMENTO;
+non terminal sentencia,resultado;
+/* ­­­­­­­­­­­­­­ Declaración de la gramática  ­­­­­­­­­­­ */
+resultado ::= sentencia:e
+{:
+	System.out.println(e);
+:};
+
+sentencia::= INICIO ELEMENTO:n FINC UNION INICIO ELEMENTO:n1 FINC FINLINEA
+                {: RESULT = "LA union del conjunto: ("+n+n1+")";:};
+
